@@ -141,7 +141,7 @@
         <input type="number" id="groupCountInput" value="8" min="1" max="50">
 
         <button class="generate-btn" onclick="generateSlots()">產生隨機拉霸機</button>
-        <p style="margin-top:20px; color:#999; font-size:0.8rem;">版本：v1.3 (連續單向轉動版)</p>
+        <p style="margin-top:20px; color:#999; font-size:0.8rem;">版本：v1.3.2 (音效邏輯修正)</p>
     </div>
 
     <div class="main-content" id="mainDisplay">
@@ -183,9 +183,9 @@
             img.classList.remove('img-huge-rotate');
             img.style.display = 'none';
 
-            [audio1, audio2].forEach(a => {
-                a.play().then(() => { a.pause(); a.currentTime = 0; }).catch(() => {});
-            });
+            // 修正點：移除原本會發出聲音的 play()，改用 load() 預載
+            audio1.load();
+            audio2.load();
 
             document.getElementById('mainDisplay').style.display = 'flex';
             const container = document.getElementById('slotContainer');
@@ -204,15 +204,12 @@
                 for (let j = 0; j < 2; j++) {
                     const reel = document.getElementById(`reel-${i}-${j}`);
                     let items = ['<div class="slot-item">準備中...</div>'];
-                    
-                    // 為了實現單向轉動，名單順序：填充名單 -> Round1目標 -> 填充名單 -> Round2目標
                     for(let k=0; k<10; k++) shuffle([...allNames]).forEach(n => items.push(`<div class="slot-item">${n}</div>`));
                     items.push(`<div class="slot-item final-target" id="target-${i}-${j}-r1">${round1Results[i][j]}</div>`);
                     for(let k=0; k<12; k++) shuffle([...allNames]).forEach(n => items.push(`<div class="slot-item">${n}</div>`));
                     items.push(`<div class="slot-item final-target" id="target-${i}-${j}-r2">${round2Results[i][j]}</div>`);
-                    
                     reel.innerHTML = items.join('');
-                    reel.style.top = "0px"; // 初始歸零
+                    reel.style.top = "0px";
                 }
             }
             window.scrollTo({ left: document.body.scrollWidth, behavior: 'smooth' });
@@ -241,8 +238,6 @@
                         const reel = document.getElementById(`reel-${i}-${j}`);
                         const targetId = `target-${i}-${j}-r${round}`;
                         const targetElement = document.getElementById(targetId);
-                        
-                        // 只往負方向（下）移動到目標位置
                         const finalPos = -targetElement.offsetTop;
                         reel.style.transition = `top ${animationDuration/1000}s cubic-bezier(0.1, 0, 0.1, 1)`;
                         reel.style.top = finalPos + 'px';
@@ -256,6 +251,7 @@
                     btn.style.display = 'none';
                     canShowSurprise = true;
                 } else {
+                    // 只有在第二次抽籤動畫徹底結束後，才播放 BGM2 並顯示圖片
                     audio2.play();
                     btn.innerText = "抽籤完成";
                     const img = document.getElementById('finalImage');
@@ -267,7 +263,7 @@
         function handleGlobalClick() {
             if (canShowSurprise && !isSpinning) {
                 document.getElementById('surpriseText').style.opacity = '1';
-                audio1.play();
+                audio1.play(); // 此時播放的是 BGM1
                 setTimeout(() => { document.getElementById('secondBtn').style.display = 'block'; }, 1500);
                 canShowSurprise = false; 
             }
