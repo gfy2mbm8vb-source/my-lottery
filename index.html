@@ -141,7 +141,7 @@
         <input type="number" id="groupCountInput" value="8" min="1" max="50">
 
         <button class="generate-btn" onclick="generateSlots()">產生隨機拉霸機</button>
-        <p style="margin-top:20px; color:#999; font-size:0.8rem;">版本：v1.3.2 (音效邏輯修正)</p>
+        <p style="margin-top:20px; color:#999; font-size:0.8rem;">版本：v1.3.3 (靜音啟動版)</p>
     </div>
 
     <div class="main-content" id="mainDisplay">
@@ -183,7 +183,7 @@
             img.classList.remove('img-huge-rotate');
             img.style.display = 'none';
 
-            // 修正點：移除原本會發出聲音的 play()，改用 load() 預載
+            // 修改處：僅預載入，不再執行 play() 以確保按下此按鈕時靜音
             audio1.load();
             audio2.load();
 
@@ -226,7 +226,8 @@
             if (round === 2) {
                 document.getElementById('surpriseText').style.transition = 'opacity 0.5s ease';
                 document.getElementById('surpriseText').style.opacity = '0';
-                audio1.pause(); audio1.currentTime = 0;
+                audio1.pause(); 
+                audio1.currentTime = 0;
             }
 
             const staggerDelay = 300; 
@@ -251,7 +252,7 @@
                     btn.style.display = 'none';
                     canShowSurprise = true;
                 } else {
-                    // 只有在第二次抽籤動畫徹底結束後，才播放 BGM2 並顯示圖片
+                    // 程式執行到最後一刻才播放 bgm2
                     audio2.play();
                     btn.innerText = "抽籤完成";
                     const img = document.getElementById('finalImage');
@@ -263,7 +264,7 @@
         function handleGlobalClick() {
             if (canShowSurprise && !isSpinning) {
                 document.getElementById('surpriseText').style.opacity = '1';
-                audio1.play(); // 此時播放的是 BGM1
+                audio1.play();
                 setTimeout(() => { document.getElementById('secondBtn').style.display = 'block'; }, 1500);
                 canShowSurprise = false; 
             }
