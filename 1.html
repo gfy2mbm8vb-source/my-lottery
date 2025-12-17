@@ -17,7 +17,7 @@
             min-height: 100vh; 
             padding: 40px;
             gap: 40px;
-            overflow-x: hidden; /* 防止大圖旋轉時產生橫向滾動條 */
+            overflow-x: hidden;
         }
 
         /* 左側設定區 */
@@ -32,7 +32,6 @@
             top: 40px;
             z-index: 10;
         }
-        .sidebar h2 { font-size: 1.5rem; margin: 0 0 15px 0; color: #333; border-bottom: 2px solid #eee; padding-bottom: 10px; }
         
         textarea {
             width: 100%; height: 250px; background: #fff; color: #333; border: 1px solid #ccc;
@@ -100,19 +99,18 @@
             text-align: center;
         }
 
-        /* --- 圖片樣式：極大化旋轉出現 --- */
+        /* --- 圖片樣式：巨大化旋轉出現 --- */
         #finalImage {
             position: fixed;
             bottom: -80px;
             left: -80px;
-            width: 700px; /* 超巨大尺寸 */
+            width: 750px; 
             z-index: 1001;
             display: none; 
-            pointer-events: none; /* 讓滑鼠可以點擊圖片下方的按鈕 */
+            pointer-events: none; 
             filter: drop-shadow(0 20px 60px rgba(0,0,0,0.6));
         }
 
-        /* 旋轉放大的華麗動畫 */
         .img-huge-rotate {
             display: block !important;
             animation: hugeRotateIn 1.5s cubic-bezier(0.19, 1, 0.22, 1) forwards;
@@ -120,7 +118,7 @@
 
         @keyframes hugeRotateIn {
             0% { 
-                transform: scale(0) rotate(-1080deg); /* 轉三圈 */
+                transform: scale(0) rotate(-1080deg); 
                 opacity: 0; 
             }
             100% { 
@@ -152,7 +150,7 @@
         <input type="number" id="groupCountInput" value="8" min="1" max="50">
 
         <button class="generate-btn" onclick="generateSlots()">產生隨機拉霸機</button>
-        <p style="margin-top:20px; color:#999; font-size:0.8rem;">版本：GitHub-Cloud-v1.0</p>
+        <p style="margin-top:20px; color:#999; font-size:0.8rem;">版本：GitHub-Cloud-PNG-v1.1</p>
     </div>
 
     <div class="main-content" id="mainDisplay">
@@ -167,20 +165,11 @@
     
     <div id="surpriseText">真的是這樣嗎？</div>
 
-    <img id="finalImage" src="1.png" alt="1.png" onerror="tryOtherFormats(this)">
+    <img id="finalImage" src="1.png" alt="1.png" onerror="this.style.display='none'">
 
     <script>
         const audio1 = document.getElementById('audio1');
         const audio2 = document.getElementById('audio2');
-
-        // 自動修正檔名錯誤 (適用於 GitHub)
-        let retry = 0;
-        function tryOtherFormats(img) {
-            retry++;
-            if (retry === 1) img.src = "１.png"; // 嘗試全形
-            else if (retry === 2) img.src = "1.PNG"; // 嘗試大寫
-            else if (retry === 3) img.src = "1.jpg"; // 嘗試 JPG
-        }
 
         const round1Results = [
             ["黃品慈", "莊亞倫"], ["王啟軒", "賴薈如"], ["許彥翎", "黎宥均"], ["梁昌維", "高宥翔"],
