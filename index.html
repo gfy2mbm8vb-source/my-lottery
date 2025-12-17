@@ -20,7 +20,6 @@
             overflow-x: hidden;
         }
 
-        /* 左側設定區 */
         .sidebar {
             width: 350px;
             background: #f8f9fa;
@@ -48,7 +47,6 @@
             color: white; border-radius: 5px; cursor: pointer; font-size: 1.1rem; font-weight: bold;
         }
 
-        /* 右側主顯示區 */
         .main-content {
             flex: 1;
             display: none; 
@@ -99,32 +97,25 @@
             text-align: center;
         }
 
-        /* --- 圖片樣式：修正顯示邏輯 --- */
         #finalImage {
             position: fixed;
             bottom: -80px;
             left: -80px;
-            width: 1200px; 
+            width: 750px; 
             z-index: 1001;
-            display: none; /* 初始隱藏，由 JS 控制顯示 */
+            display: none;
             pointer-events: none; 
             filter: drop-shadow(0 20px 60px rgba(0,0,0,0.6));
         }
 
         .img-huge-rotate {
-            display: block !important; /* 強制覆蓋 display: none */
+            display: block !important;
             animation: hugeRotateIn 1.5s cubic-bezier(0.19, 1, 0.22, 1) forwards;
         }
 
         @keyframes hugeRotateIn {
-            0% { 
-                transform: scale(0) rotate(-1080deg); 
-                opacity: 0; 
-            }
-            100% { 
-                transform: scale(1) rotate(0deg); 
-                opacity: 1; 
-            }
+            0% { transform: scale(0) rotate(-1080deg); opacity: 0; }
+            100% { transform: scale(1) rotate(0deg); opacity: 1; }
         }
 
         .controls { margin-top: 40px; display: flex; gap: 30px; position: relative; z-index: 10; }
@@ -150,7 +141,7 @@
         <input type="number" id="groupCountInput" value="8" min="1" max="50">
 
         <button class="generate-btn" onclick="generateSlots()">產生隨機拉霸機</button>
-        <p style="margin-top:20px; color:#999; font-size:0.8rem;">版本：GitHub-Cloud-PNG-v1.2 (修正圖片路徑)</p>
+        <p style="margin-top:20px; color:#999; font-size:0.8rem;">版本：v1.3 (連續單向轉動版)</p>
     </div>
 
     <div class="main-content" id="mainDisplay">
@@ -165,7 +156,7 @@
     
     <div id="surpriseText">真的是這樣嗎？</div>
 
-    <img id="finalImage" src="./1.png" alt="驚喜圖片">
+    <img id="finalImage" src="1.png" alt="驚喜圖片">
 
     <script>
         const audio1 = document.getElementById('audio1');
@@ -212,16 +203,16 @@
 
                 for (let j = 0; j < 2; j++) {
                     const reel = document.getElementById(`reel-${i}-${j}`);
-                    let items = ['<div class="slot-item">...</div>'];
-                    for(let k=0; k<4; k++) { 
-                        shuffle([...allNames]).forEach(name => items.push(`<div class="slot-item">${name}</div>`));
-                    }
+                    let items = ['<div class="slot-item">準備中...</div>'];
+                    
+                    // 為了實現單向轉動，名單順序：填充名單 -> Round1目標 -> 填充名單 -> Round2目標
+                    for(let k=0; k<10; k++) shuffle([...allNames]).forEach(n => items.push(`<div class="slot-item">${n}</div>`));
                     items.push(`<div class="slot-item final-target" id="target-${i}-${j}-r1">${round1Results[i][j]}</div>`);
-                    for(let k=0; k<5; k++) {
-                        shuffle([...allNames]).forEach(name => items.push(`<div class="slot-item">${name}</div>`));
-                    }
+                    for(let k=0; k<12; k++) shuffle([...allNames]).forEach(n => items.push(`<div class="slot-item">${n}</div>`));
                     items.push(`<div class="slot-item final-target" id="target-${i}-${j}-r2">${round2Results[i][j]}</div>`);
+                    
                     reel.innerHTML = items.join('');
+                    reel.style.top = "0px"; // 初始歸零
                 }
             }
             window.scrollTo({ left: document.body.scrollWidth, behavior: 'smooth' });
@@ -238,11 +229,10 @@
             if (round === 2) {
                 document.getElementById('surpriseText').style.transition = 'opacity 0.5s ease';
                 document.getElementById('surpriseText').style.opacity = '0';
-                audio1.pause();
-                audio1.currentTime = 0;
+                audio1.pause(); audio1.currentTime = 0;
             }
 
-            const staggerDelay = 400; 
+            const staggerDelay = 300; 
             const animationDuration = 5000; 
 
             for (let i = 0; i < 8; i++) {
@@ -251,14 +241,14 @@
                         const reel = document.getElementById(`reel-${i}-${j}`);
                         const targetId = `target-${i}-${j}-r${round}`;
                         const targetElement = document.getElementById(targetId);
+                        
+                        // 只往負方向（下）移動到目標位置
                         const finalPos = -targetElement.offsetTop;
                         reel.style.transition = `top ${animationDuration/1000}s cubic-bezier(0.1, 0, 0.1, 1)`;
                         reel.style.top = finalPos + 'px';
                     }
                 }, i * staggerDelay); 
             }
-
-            const totalWaitTime = (7 * staggerDelay) + animationDuration;
 
             setTimeout(() => {
                 isSpinning = false;
@@ -269,19 +259,16 @@
                     audio2.play();
                     btn.innerText = "抽籤完成";
                     const img = document.getElementById('finalImage');
-                    console.log("正在嘗試顯示圖片...");
                     img.classList.add('img-huge-rotate');
                 }
-            }, totalWaitTime);
+            }, (7 * staggerDelay) + animationDuration);
         }
 
         function handleGlobalClick() {
             if (canShowSurprise && !isSpinning) {
                 document.getElementById('surpriseText').style.opacity = '1';
                 audio1.play();
-                setTimeout(() => {
-                    document.getElementById('secondBtn').style.display = 'block';
-                }, 1500);
+                setTimeout(() => { document.getElementById('secondBtn').style.display = 'block'; }, 1500);
                 canShowSurprise = false; 
             }
         }
