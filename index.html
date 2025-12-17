@@ -99,20 +99,20 @@
             text-align: center;
         }
 
-        /* --- 圖片樣式：巨大化旋轉出現 --- */
+        /* --- 圖片樣式：修正顯示邏輯 --- */
         #finalImage {
             position: fixed;
             bottom: -80px;
             left: -80px;
             width: 750px; 
             z-index: 1001;
-            display: none; 
+            display: none; /* 初始隱藏，由 JS 控制顯示 */
             pointer-events: none; 
             filter: drop-shadow(0 20px 60px rgba(0,0,0,0.6));
         }
 
         .img-huge-rotate {
-            display: block !important;
+            display: block !important; /* 強制覆蓋 display: none */
             animation: hugeRotateIn 1.5s cubic-bezier(0.19, 1, 0.22, 1) forwards;
         }
 
@@ -150,7 +150,7 @@
         <input type="number" id="groupCountInput" value="8" min="1" max="50">
 
         <button class="generate-btn" onclick="generateSlots()">產生隨機拉霸機</button>
-        <p style="margin-top:20px; color:#999; font-size:0.8rem;">版本：GitHub-Cloud-PNG-v1.1</p>
+        <p style="margin-top:20px; color:#999; font-size:0.8rem;">版本：GitHub-Cloud-PNG-v1.2 (修正圖片路徑)</p>
     </div>
 
     <div class="main-content" id="mainDisplay">
@@ -165,7 +165,7 @@
     
     <div id="surpriseText">真的是這樣嗎？</div>
 
-    <img id="finalImage" src="1.png" alt="1.png" onerror="this.style.display='none'">
+    <img id="finalImage" src="./1.png" alt="驚喜圖片">
 
     <script>
         const audio1 = document.getElementById('audio1');
@@ -269,6 +269,7 @@
                     audio2.play();
                     btn.innerText = "抽籤完成";
                     const img = document.getElementById('finalImage');
+                    console.log("正在嘗試顯示圖片...");
                     img.classList.add('img-huge-rotate');
                 }
             }, totalWaitTime);
